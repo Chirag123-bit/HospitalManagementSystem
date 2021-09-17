@@ -54,9 +54,12 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 	ArrayList <Integer>patientList = new ArrayList<>();
 	private ResultSet res2, res;
 	private HashMap<Integer, String> mapNurse = new HashMap<>(),  mapDoctor= new HashMap<>();
-	/**
-	 * Launch the application.
-	 */
+	private int adminId;
+
+	public Admin_Panal(int adminId) {
+		this.adminId = adminId;
+	}
+	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -70,9 +73,7 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 		});
 	}
 
-	/**
-	 * Create the frame.
-	 */
+
 	public Admin_Panal() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1106, 703);
@@ -240,8 +241,7 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
                     columnData.add(rs.getString("medical_history"));
                     columnData.add(mapDoctor.get(rs.getInt("doctor")));
                     columnData.add(mapNurse.get(rs.getInt("nurse")));
-                    columnData.add(rs.getString("desc"));
-                    mapDoctor.get(rs.getInt("doctor"));
+                    columnData.add(rs.getString("description"));
                     
                     
                 }

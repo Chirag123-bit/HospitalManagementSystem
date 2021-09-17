@@ -3,6 +3,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import backend.Authentication;
 import backend.DbConnection;
 
 import javax.swing.JLabel;
@@ -102,25 +103,25 @@ public class Login extends JFrame implements ActionListener{
 	
 
 	
-    public boolean userLogin(String user, String psw) {
-    	PreparedStatement st;
-		String query = "SELECT * FROM staff WHERE `uname` = ? AND `password` = ?"; 
-		DbConnection connection = new DbConnection();
-		try {
-			st = DbConnection.conn.prepareStatement(query);
-			st.setString(1, user);
-			st.setString(2, psw);
-			ResultSet rs = st.executeQuery();
-			
-			if(rs.next()) {
-				return true;
-			}
-		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		return false;
-	}  
+//    public boolean userLogin(String user, String psw) {
+//    	PreparedStatement st;
+//		String query = "SELECT * FROM staff WHERE `uname` = ? AND `password` = ?"; 
+//		DbConnection connection = new DbConnection();
+//		try {
+//			st = DbConnection.conn.prepareStatement(query);
+//			st.setString(1, user);
+//			st.setString(2, psw);
+//			ResultSet rs = st.executeQuery();
+//			
+//			if(rs.next()) {
+//				return true;
+//			}
+//		} catch (SQLException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+//		return false;
+//	}  
             
 
 	@Override
@@ -136,14 +137,8 @@ public class Login extends JFrame implements ActionListener{
             }
             
             else {
-	            boolean res = userLogin(username, password);
-	            
-	            if (res) {
-	            	JOptionPane.showMessageDialog(this, "User Verified");
-	                
-	            } else {
-	                JOptionPane.showMessageDialog(this, "Username/Password Invalid");
-	            }
+            	this.dispose();
+            	Authentication.login(username, password);
 		}}
 		if(e.getSource() == resetBtn) {
 			userfield.setText("");
