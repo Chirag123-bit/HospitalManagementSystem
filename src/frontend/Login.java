@@ -9,6 +9,7 @@ import backend.DbConnection;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -32,6 +33,8 @@ public class Login extends JFrame implements ActionListener{
 	private JPasswordField passwordField;
 	private JButton loginBtn;
 	private JButton resetBtn;
+	private JButton registerBtn;
+	private JLabel lblNewUser;
 
 
 	/**
@@ -93,35 +96,30 @@ public class Login extends JFrame implements ActionListener{
 		contentPane.add(loginBtn);
 		loginBtn.addActionListener(this);
 		
-		resetBtn = new JButton("Reset Password");
+		resetBtn = new JButton("Reset Credintials");
 		resetBtn.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		resetBtn.setBounds(368, 337, 144, 38);
 		contentPane.add(resetBtn);
+		
+		lblNewUser = new JLabel("New User?");
+		lblNewUser.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNewUser.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewUser.setBounds(371, 409, 99, 23);
+		contentPane.add(lblNewUser);
+		
+		registerBtn = new JButton("Register");
+		registerBtn.addActionListener(this);
+		registerBtn.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		registerBtn.setForeground(Color.BLUE);
+		registerBtn.setBounds(480, 401, 168, 38);
+		contentPane.add(registerBtn);
+		
 		resetBtn.addActionListener(this);
 
 	}
 	
 
 	
-//    public boolean userLogin(String user, String psw) {
-//    	PreparedStatement st;
-//		String query = "SELECT * FROM staff WHERE `uname` = ? AND `password` = ?"; 
-//		DbConnection connection = new DbConnection();
-//		try {
-//			st = DbConnection.conn.prepareStatement(query);
-//			st.setString(1, user);
-//			st.setString(2, psw);
-//			ResultSet rs = st.executeQuery();
-//			
-//			if(rs.next()) {
-//				return true;
-//			}
-//		} catch (SQLException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
-//		return false;
-//	}  
             
 
 	@Override
@@ -143,6 +141,11 @@ public class Login extends JFrame implements ActionListener{
 		if(e.getSource() == resetBtn) {
 			userfield.setText("");
 			passwordField.setText("");
+		}
+		
+		if(e.getSource()==registerBtn) {
+			this.dispose();
+			new Register().setVisible(true);
 		}
 		
 	}

@@ -26,6 +26,7 @@ import javax.swing.JTextArea;
 import javax.swing.JButton;
 import com.toedter.calendar.JDateChooser;
 
+import backend.AdminOperations;
 import backend.DbConnection;
 
 import javax.swing.JComboBox;
@@ -67,7 +68,7 @@ public class AddPatient extends JFrame implements ActionListener {
 	 * Create the frame.
 	 */
 	public AddPatient() {
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 697, 727);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -232,26 +233,14 @@ public class AddPatient extends JFrame implements ActionListener {
 			
 			
 			if(valid(f_name,l_name,history, assignedDoctor, assignedNurse, desc)) {
-				PreparedStatement st;
-				String query = "INSERT INTO `patient`(`fname`,`lname`,`medical_history`,`description`,`doctor`,`nurse`,`dob`,`admit_date`) VALUES(?, ?, ?, ?, ?,?,?,?);";
-				try {
-					st = DbConnection.conn.prepareStatement(query);
-					st.setString(1, f_name);
-					st.setString(2, l_name);
-					st.setString(3, history);
-					st.setString(4, desc);
-					st.setInt(5, assignedDoctor);
-					st.setInt(6, assignedNurse);
-					st.setString(7, dob);
-					st.setString(8, dateAdmitted);
-					
-					if(st.executeUpdate()>0) {
-						JOptionPane.showMessageDialog(null, "Patient Added Successfully");
-					}
-				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+				if(AdminOperations.addPatient(f_name, l_name, history, assignedDoctor, assignedNurse, desc, dob, dateAdmitted)) {
+					JOptionPane.showMessageDialog(null, "Patient Added Successfully");
+					this.dispose();
 				}
+				else {
+					JOptionPane.showMessageDialog(null, "Something Went Wrong");
+				}
+				
 			}
 		}
 		

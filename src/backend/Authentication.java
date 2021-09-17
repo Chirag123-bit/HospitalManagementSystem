@@ -4,8 +4,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.swing.JOptionPane;
+
 import frontend.Admin_Panal;
 import frontend.Doctor;
+import frontend.Login;
 
 public class Authentication {
 	
@@ -21,7 +24,6 @@ public class Authentication {
 				ResultSet rs = st.executeQuery();
 				if(rs.next()) {
 					String post = rs.getString(5);
-//					new Admin_Panal(rs.getInt(1));
 					if(post.equals("admin")) {
 						System.out.println("Admin");
 						new Admin_Panal(rs.getInt(1)).setVisible(true);
@@ -31,10 +33,10 @@ public class Authentication {
 					}
 				}
 				else {
-					System.out.println("Not Logged");
+					JOptionPane.showMessageDialog(null, "Invalid Credentials!");
+					new Login().setVisible(true);
 				}
 			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			return;

@@ -29,9 +29,11 @@ public class RequestAdmit extends JFrame implements ActionListener {
 	private JPanel contentPane;
 	private JTextField userField;
 	private JTextField wardField;
+	private JTextField docField;
 	private JComboBox wardBox;
 	private JButton btnRequest;
 	private static int user;
+	private static int doctor;
 
 	/**
 	 * Launch the application.
@@ -40,8 +42,9 @@ public class RequestAdmit extends JFrame implements ActionListener {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					RequestAdmit frame = new RequestAdmit(user);
+					RequestAdmit frame = new RequestAdmit(user,doctor);
 					frame.setVisible(true);
+					frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -52,11 +55,10 @@ public class RequestAdmit extends JFrame implements ActionListener {
 	/**
 	 * Create the frame.
 	 */
-	public RequestAdmit(int user) {
+	public RequestAdmit(int user, int doctor) {
 		this.user = user;
-		System.out.println(user);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 556, 256);
+		this.doctor = doctor;
+		setBounds(100, 100, 556, 335);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -88,16 +90,30 @@ public class RequestAdmit extends JFrame implements ActionListener {
 		wardBox = new JComboBox();
 		wardBox.setBounds(215, 121, 229, 35);
 		contentPane.add(wardBox);
-		
 		wardField = new JTextField();
 		wardField.setEnabled(false);
 		wardField.setColumns(10);
 		wardField.setBounds(215, 121, 229, 35);
 		contentPane.add(wardField);
 		
+		
+		JLabel docLabel = new JLabel("Doctor Id");
+		docLabel.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		docLabel.setBounds(54, 180, 122, 31);
+		contentPane.add(docLabel);
+		
+		docField = new JTextField();
+		docField.setText(Integer.toString(RequestAdmit.doctor));
+		docField.setEnabled(false);
+		docField.setColumns(10);
+		docField.setBounds(215, 179, 229, 35);
+		contentPane.add(docField);
+		
+		
+		
 		btnRequest = new JButton("Request Ward");
 		btnRequest.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		btnRequest.setBounds(225, 166, 178, 43);
+		btnRequest.setBounds(237, 245, 178, 43);
 		contentPane.add(btnRequest);
 		btnRequest.addActionListener(this);
 		
@@ -131,14 +147,16 @@ public class RequestAdmit extends JFrame implements ActionListener {
 			int ward = ((ComboItems) item).getValue();
 			
 			PreparedStatement st;
-			String query = "INSERT INTO `admit_request` (`patient`,`ward`) VALUES(?, ?)";
+			String query = "INSERT INTO `admit_request` (`patient`,`ward`,`requested_by`) VALUES(?, ?, ?)";
 			try {
 				st = DbConnection.conn.prepareStatement(query);
 				st.setInt(1, user);
 				st.setInt(2, ward);
+				st.setInt(3, doctor);
 				
 				if(st.executeUpdate()>0) {
 					JOptionPane.showMessageDialog(null, "Admit Request Sent Successfully");
+					this.dispose();
 				}
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block

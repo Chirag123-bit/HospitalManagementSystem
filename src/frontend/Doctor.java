@@ -30,6 +30,7 @@ import javax.swing.table.TableModel;
 import com.mysql.cj.jdbc.result.ResultSetMetaData;
 
 import backend.DbConnection;
+import backend.DoctorOperations;
 
 import javax.swing.JTextArea;
 import javax.swing.JButton;
@@ -50,6 +51,7 @@ public class Doctor extends JFrame implements ActionListener, MouseListener{
 	private JButton diagBtn;
 	private JButton wardBtn;
 	private int id;
+	private ResultSet res;
 
 
 	public static void main(String[] args) {
@@ -67,7 +69,7 @@ public class Doctor extends JFrame implements ActionListener, MouseListener{
 
 
 	public Doctor(int id) {
-		this.docId = id;
+		Doctor.docId = id;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1195, 623);
 		contentPane = new JPanel();
@@ -169,32 +171,29 @@ public class Doctor extends JFrame implements ActionListener, MouseListener{
 		int colCount;
 		DbConnection connection = new DbConnection();
 		try {
-	        
-	        String query = "select * from patient where doctor=3" ;
-	        st = DbConnection.conn.prepareStatement(query);
-	         ResultSet rs = st.executeQuery();
-	        ResultSetMetaData  patientData= (ResultSetMetaData) rs.getMetaData();
+			res = DoctorOperations.getPatients(docId);
+	        ResultSetMetaData  patientData= (ResultSetMetaData) res.getMetaData();
 	        
 	        colCount = patientData.getColumnCount();
 	        
 	        DefaultTableModel recordtable=(DefaultTableModel)table.getModel();
 	        recordtable.setRowCount(0);
 	                
-	        while (rs.next()) {
+	        while (res.next()) {
 	                    
                 Vector<String> columnData= new Vector<String>();
-                patientList.add(rs.getInt("id"));
+                patientList.add(res.getInt("id"));
                 
                 for(int i=0;i<=colCount;i++) {
-                    columnData.add(rs.getString("fname"));
-                    columnData.add(rs.getString("lname"));
-                    columnData.add(rs.getString("dob"));
-                    columnData.add(rs.getString("admit_date"));
-                    columnData.add(rs.getString("medical_history"));
-                    columnData.add(rs.getString("description"));
-                    columnData.add(rs.getString("status"));
-                    columnData.add(rs.getString("diagnosis"));
-                    columnData.add(rs.getString("prescription"));
+                    columnData.add(res.getString("fname"));
+                    columnData.add(res.getString("lname"));
+                    columnData.add(res.getString("dob"));
+                    columnData.add(res.getString("admit_date"));
+                    columnData.add(res.getString("medical_history"));
+                    columnData.add(res.getString("description"));
+                    columnData.add(res.getString("status"));
+                    columnData.add(res.getString("diagnosis"));
+                    columnData.add(res.getString("prescription"));
                    
 
                     
@@ -220,41 +219,23 @@ public class Doctor extends JFrame implements ActionListener, MouseListener{
 		String data = "None";
 		if(e.getSource() == presBtn || e.getSource() == diagBtn) {
 			if(e.getSource() == presBtn) {
-				query= "UPDATE `patient` SET prescription=? WHERE id=?";
-				data = presArea.getText();}
+				data = presArea.getText();
+				if(DoctorOperations.setPrescription(data, id)) { JOptionPane.showMessageDialog(null, "Prescriptions updated successsfully");}}
+				
 			else {
-				query= "UPDATE `patient` SET diagnosis=? WHERE id=?";
 				data = diagArea.getText();
+				if(DoctorOperations.setDiagnosis(data, id)) { JOptionPane.showMessageDialog(null, "Diagnosis updated successsfully");}
 				}
-			query= "UPDATE `patient` SET diagnosis=? WHERE id=?";
-			data = diagArea.getText();
+			refreshTable();
+			
 
 
-	        PreparedStatement st;
-	        try {
-	        	DbConnection connection = new DbConnection();
-	        	st = DbConnection.conn.prepareStatement(query);
-	        
-		        st.setString(1, data);
-		        st.setInt(2, id);
-	    
-	        
-	        if(st.executeUpdate()>0) {
-		        JOptionPane.showMessageDialog(null, "data updated successsfully");
-		        refreshTable();
-		        
-	        	}
-	        } 
-	        catch (SQLException e1) {
-	        // TODO Auto-generated catch block
-	        e1.printStackTrace();
-		}
 
 		
 		
         }
 		else if(e.getSource() == wardBtn) {
-			new RequestAdmit(id).setVisible(true);;
+			new RequestAdmit(id, docId).setVisible(true);;
 			
 		}
 	}

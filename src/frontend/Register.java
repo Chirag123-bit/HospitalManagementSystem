@@ -33,6 +33,9 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
+
+import backend.AdminOperations;
+import backend.AdminOperations;
 import backend.DbConnection;
 
 public class Register extends JFrame implements ActionListener {
@@ -264,23 +267,13 @@ public class Register extends JFrame implements ActionListener {
 				JOptionPane.showMessageDialog(this, "Designation Field blank");
 			}
 			if(valid(fname,lname,uname,password)) {
-				PreparedStatement st;
-				String query = "INSERT INTO `staff`(`fname`,`lname`,`uname`,`post`,`password`) VALUES(?, ?, ?, ?, ?)"; 
-				DbConnection connection = new DbConnection();
-				try {
-					st = DbConnection.conn.prepareStatement(query);
-					st.setString(1, fname);
-					st.setString(2, lname);
-					st.setString(3, uname);
-					st.setString(4, post);
-					st.setString(5, password);
-					
-					if(st.executeUpdate()>0) {
-						JOptionPane.showMessageDialog(null, "New Staff Added");
-					}
-				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+				if(AdminOperations.register(fname, lname, uname, uname, password)) {
+					JOptionPane.showMessageDialog(null, "New Staff Added");
+					this.dispose();
+					new Login().setVisible(true);
+				}
+				else {
+					JOptionPane.showMessageDialog(null, "Staff Registration Failed!");
 				}
 			}
             

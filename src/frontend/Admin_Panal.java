@@ -28,6 +28,7 @@ import javax.swing.table.DefaultTableModel;
 
 import com.mysql.cj.jdbc.result.ResultSetMetaData;
 
+import backend.AdminOperations;
 import backend.DbConnection;
 
 import javax.swing.JScrollPane;
@@ -48,23 +49,22 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 	private JComboBox<String> nurseCombo;
 	private JTextArea desc;
 	private JButton updateDetails;
+	private JButton btnAdd;
+	private JButton btnAdmit;
 	private DefaultTableModel model;
 	ArrayList<Object> doctorList = new ArrayList<>();
 	ArrayList <Object>nurseList = new ArrayList<>();
 	ArrayList <Integer>patientList = new ArrayList<>();
-	private ResultSet res2, res;
+	private ResultSet res;
 	private HashMap<Integer, String> mapNurse = new HashMap<>(),  mapDoctor= new HashMap<>();
-	private int adminId;
+	private static int adminId;
 
-	public Admin_Panal(int adminId) {
-		this.adminId = adminId;
-	}
-	
+
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Admin_Panal frame = new Admin_Panal();
+					Admin_Panal frame = new Admin_Panal(adminId);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -74,7 +74,8 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 	}
 
 
-	public Admin_Panal() {
+	public Admin_Panal(int adminId) {
+		this.adminId = adminId;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1106, 703);
 		getContentPane().setLayout(null);
@@ -85,15 +86,17 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 		titleLabel.setBounds(367, 20, 350, 33);
 		getContentPane().add(titleLabel);
 		
-		JButton btnNewButton = new JButton("Add Patient");
-		btnNewButton.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		btnNewButton.setBounds(76, 98, 181, 54);
-		getContentPane().add(btnNewButton);
+		btnAdd = new JButton("Add Patient");
+		btnAdd.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		btnAdd.setBounds(76, 98, 181, 54);
+		getContentPane().add(btnAdd);
+		btnAdd.addActionListener(this);
 		
-		JButton btnNewButton_1 = new JButton("Admit Patient");
-		btnNewButton_1.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		btnNewButton_1.setBounds(324, 98, 181, 54);
-		getContentPane().add(btnNewButton_1);
+		btnAdmit = new JButton("Show Admit Requests");
+		btnAdmit.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		btnAdmit.setBounds(324, 98, 181, 54);
+		getContentPane().add(btnAdmit);
+		btnAdmit.addActionListener(this);
 		
 		JButton btnNewButton_2 = new JButton("Add Lab Report");
 		btnNewButton_2.setFont(new Font("Tahoma", Font.PLAIN, 15));
@@ -213,35 +216,33 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 
 	
 	private void populatePatientSection() {
-		PreparedStatement st;
 		int colCount;
-		DbConnection connection = new DbConnection();
 		try {
 	        
-	        String query = "select * from patient" ;
-	        st = DbConnection.conn.prepareStatement(query);
-	         ResultSet rs = st.executeQuery();
-	        ResultSetMetaData  patientData= (ResultSetMetaData) rs.getMetaData();
+	       
+	        res = AdminOperations.getPatients();
+	        ResultSetMetaData  patientData= (ResultSetMetaData) res.getMetaData();
 	        
 	        colCount = patientData.getColumnCount();
 	        
 	        DefaultTableModel recordtable=(DefaultTableModel)table.getModel();
 	        recordtable.setRowCount(0);
 	                
-	        while (rs.next()) {
+	        while (res.next()) {
 	                    
                 Vector<String> columnData= new Vector<String>();
-                patientList.add(rs.getInt("id"));
+                patientList.add(res.getInt("id"));
                 
                 for(int i=0;i<=colCount;i++) {
-                    columnData.add(rs.getString("fname"));
-                    columnData.add(rs.getString("lname"));
-                    columnData.add(rs.getString("dob"));
-                    columnData.add(rs.getString("admit_date"));
-                    columnData.add(rs.getString("medical_history"));
-                    columnData.add(mapDoctor.get(rs.getInt("doctor")));
-                    columnData.add(mapNurse.get(rs.getInt("nurse")));
-                    columnData.add(rs.getString("description"));
+                    columnData.add(res.getString("fname"));
+                    columnData.add(res.getString("lname"));
+                    columnData.add(res.getString("dob"));
+                    columnData.add(res.getString("admit_date"));
+                    columnData.add(res.getString("medical_history"));
+                    columnData.add(mapDoctor.get(res.getInt("doctor")));
+                    columnData.add(mapNurse.get(res.getInt("nurse")));
+                    columnData.add(res.getString("description"));
+                    mapDoctor.get(res.getInt("doctor"));
                     
                     
                 }
@@ -259,16 +260,10 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 	    }
 	}
 	public void populateComboBox() {
-		PreparedStatement st;
-		PreparedStatement st2;
-		DbConnection connection = new DbConnection();
-		String query = "SELECT * FROM staff where `post` = 'doctor' ";
-		String query2 = "SELECT * FROM staff where `post` = 'nurse' ";
-		
-		
+
+
 		try {
-			st = DbConnection.conn.prepareStatement(query);
-			res = st.executeQuery();
+			res = AdminOperations.getDoctors();
 			while(res.next()) {
 				doctorList.add(res.getString(1));
 				doctorCombo.addItem(res.getString(2));
@@ -276,20 +271,19 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 				
 				
 			}
-			
-			st2 = DbConnection.conn.prepareStatement(query2);
-			res2 = st2.executeQuery();
-			while(res2.next()) {
-				nurseList.add(res2.getString(1));
-				nurseCombo.addItem(res2.getString(2));
-				mapNurse.put(res2.getInt(1), res2.getString(2));
+			res = AdminOperations.getNurses();
+			while(res.next()) {
+				nurseList.add(res.getString(1));
+				nurseCombo.addItem(res.getString(2));
+				mapNurse.put(res.getInt(1), res.getString(2));
 				
 			}
 			
+			
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 	}
 
 	@Override
@@ -304,9 +298,6 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 	        desc.setText(recordtable.getValueAt(SelectedRow,7).toString());
 	        doctorCombo.setSelectedItem(recordtable.getValueAt(SelectedRow,5).toString());
 	        nurseCombo.setSelectedItem(recordtable.getValueAt(SelectedRow,6).toString());
-
-//	        nurseCombo.setSelectedItem(recordtable.getValueAt(SelectedRow, 6));
-//	        txtmedicalhistory.setText(recordtable.getValueAt(SelectedRow,5).toString());
 
 		
 	}
@@ -338,7 +329,6 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource()==updateDetails){
-//			System.out.println(doctorList.get(table.getSelectedRow()));
 	        String up_fname, up_lname, up_Dob, up_admit_date, up_med_history,up_desp;
 	        Integer  up_doc, up_nurse, id;
 	        up_fname = fname.getText();
@@ -352,37 +342,26 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 			up_nurse = Integer.parseInt(nurseList.get(indexNurse).toString());
 	        up_desp = desc.getText();
 	        id=  patientList.get(table.getSelectedRow());
-	        
-	    
-	        String query= "UPDATE `patient` SET fname=?, lname=?, dob=?, admit_date=?, medical_history=?, doctor=?, nurse=? WHERE id=?";
-//	        String query= "UPDATE `patient` SET fname=?, lname=?, dob=?, admit_date=?, medical_history=?, doctor=?, nurse=?, desc=? WHERE id=?";
-	        PreparedStatement st;
-	        try {
-	        	DbConnection connection = new DbConnection();
-	        	st = DbConnection.conn.prepareStatement(query);
-	        
-		        st.setString(1, up_fname);
-		        st.setString(2, up_lname);
-		        st.setString(3, up_Dob);
-		        st.setString(4, up_admit_date);
-		        st.setString(5, up_med_history);
-		        st.setInt(6, up_doc);
-		        st.setInt(7, up_nurse);
-//		        st.setString(8, up_desp);// Throwing error
-		        st.setInt(8, id);
-	    
-	        
-	        if(st.executeUpdate()>0) {
-		        JOptionPane.showMessageDialog(null, "data updated successsfully");
+	        boolean success = AdminOperations.updatePatient(up_fname, up_lname, up_Dob, up_admit_date, up_med_history, up_doc, up_nurse, up_desp, id);
+	        if(success) {
+	        	JOptionPane.showMessageDialog(null, "data updated successsfully");
 		        refreshTable();
-		        
-	        	}
-	        } 
-	        catch (SQLException e1) {
-	        // TODO Auto-generated catch block
-	        e1.printStackTrace();
 	        }
+	        else {
+	        	JOptionPane.showMessageDialog(null, "data updated Failed");
 	        }
+	        
+	        }
+		
+		else if(e.getSource()==btnAdd) {
+			new AddPatient().setVisible(true);
+			
+		}
+		
+		else if(e.getSource()==btnAdmit) {
+			new AdmitPatient().setVisible(true);
+			
+		}
 			
 		}
 	
