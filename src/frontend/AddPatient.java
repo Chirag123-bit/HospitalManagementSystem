@@ -188,7 +188,6 @@ public class AddPatient extends JFrame implements ActionListener {
 			while(res.next()) {
 				doctorCombo.addItem(new ComboItems(res.getString(2), res.getInt(1)));
 
-
 				
 			}
 			st2 = DbConnection.conn.prepareStatement(query2);

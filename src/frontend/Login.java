@@ -37,9 +37,6 @@ public class Login extends JFrame implements ActionListener{
 	private JLabel lblNewUser;
 
 
-	/**
-	 * Launch the application.
-	 */
 	public static void main(String[] args) {
 
 		Login frame = new Login();

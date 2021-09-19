@@ -9,6 +9,7 @@ import javax.swing.JOptionPane;
 import frontend.Admin_Panal;
 import frontend.Doctor;
 import frontend.Login;
+import frontend.Nurse;
 
 public class Authentication {
 	
@@ -29,7 +30,12 @@ public class Authentication {
 						new Admin_Panal(rs.getInt(1)).setVisible(true);
 					}
 					else if(post.equals("doctor")) {
+						String name = rs.getString(2)+" "+rs.getString(3);
 						new Doctor(rs.getInt(1)).setVisible(true);
+					}
+					else if(post.equals("nurse")) {
+						String name = rs.getString(2)+" "+rs.getString(3);
+						new Nurse(rs.getInt(1),name).setVisible(true);
 					}
 				}
 				else {

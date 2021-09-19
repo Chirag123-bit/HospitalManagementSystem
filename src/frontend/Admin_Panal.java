@@ -51,6 +51,7 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 	private JButton updateDetails;
 	private JButton btnAdd;
 	private JButton btnAdmit;
+	private JButton btnDate;
 	private DefaultTableModel model;
 	ArrayList<Object> doctorList = new ArrayList<>();
 	ArrayList <Object>nurseList = new ArrayList<>();
@@ -58,6 +59,8 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 	private ResultSet res;
 	private HashMap<Integer, String> mapNurse = new HashMap<>(),  mapDoctor= new HashMap<>();
 	private static int adminId;
+	String name;
+	int patId;
 
 
 	public static void main(String[] args) {
@@ -103,10 +106,11 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 		btnNewButton_2.setBounds(579, 98, 181, 54);
 		getContentPane().add(btnNewButton_2);
 		
-		JButton btnNewButton_3 = new JButton("Logout");
-		btnNewButton_3.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		btnNewButton_3.setBounds(857, 98, 181, 54);
-		getContentPane().add(btnNewButton_3);
+		btnDate = new JButton("Manage Dates");
+		btnDate.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		btnDate.setBounds(857, 98, 181, 54);
+		getContentPane().add(btnDate);
+		btnDate.addActionListener(this);
 		
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBounds(367, 189, 715, 369);
@@ -117,7 +121,7 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 		scrollPane.setViewportView(table);
 		model = new DefaultTableModel();
 		Object[] column = {
-				"First Name", "Last Name", "DOB", "Admit Date", "Med_History", "Doctor", "Nurse", "Description"};
+				"First Name", "Last Name", "DOB", "Admit Date", "Med_History", "Doctor", "Nurse", "Description", "id"};
 		Object[] row = new Object[0];
 		model.setColumnIdentifiers(column);
 		table.setModel(model);
@@ -211,6 +215,7 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 		
 		populateComboBox();
 		populatePatientSection();
+		table.removeColumn(table.getColumnModel().getColumn(8));
 	}
 
 
@@ -242,7 +247,8 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
                     columnData.add(mapDoctor.get(res.getInt("doctor")));
                     columnData.add(mapNurse.get(res.getInt("nurse")));
                     columnData.add(res.getString("description"));
-                    mapDoctor.get(res.getInt("doctor"));
+                    columnData.add(res.getString("id"));
+                    
                     
                     
                 }
@@ -298,6 +304,8 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 	        desc.setText(recordtable.getValueAt(SelectedRow,7).toString());
 	        doctorCombo.setSelectedItem(recordtable.getValueAt(SelectedRow,5).toString());
 	        nurseCombo.setSelectedItem(recordtable.getValueAt(SelectedRow,6).toString());
+	        patId = Integer.parseInt(recordtable.getValueAt(SelectedRow,8).toString());
+	        name = recordtable.getValueAt(SelectedRow,0).toString() + " " + recordtable.getValueAt(SelectedRow,1).toString();
 
 		
 	}
@@ -361,6 +369,9 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 		else if(e.getSource()==btnAdmit) {
 			new AdmitPatient().setVisible(true);
 			
+		}
+		else if(e.getSource()==btnDate) {
+			new KeyDateAdmin(patId, name).setVisible(true);
 		}
 			
 		}

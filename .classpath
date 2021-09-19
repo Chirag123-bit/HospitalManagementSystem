@@ -8,5 +8,7 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="E:/Java Projects/Covid/mysql-connector-java-8.0.26.jar"/>
 	<classpathentry kind="lib" path="E:/Java Projects/SwingPractice/JCalendar.jar"/>
+	<classpathentry kind="lib" path="E:/Java Projects/Task 2/JPlanner.jar"/>
+	<classpathentry kind="lib" path="E:/Java Projects/Task 2/LGoodDatePicker-11.2.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

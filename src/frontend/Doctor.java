@@ -39,9 +39,11 @@ import javax.swing.JButton;
 public class Doctor extends JFrame implements ActionListener, MouseListener{
 
 	private JPanel contentPane;
-	private JTable table;
+	private JTable table_pat;
+	private JTable med_table;
 	private JScrollPane scrollPane;
-	private DefaultTableModel model;
+	private DefaultTableModel model_pat;
+	private DefaultTableModel model_med;
 	private ArrayList<Integer> patientList = new ArrayList<>();
 	private static int docId;
 	private JTextArea presArea;
@@ -50,8 +52,15 @@ public class Doctor extends JFrame implements ActionListener, MouseListener{
 	private JButton presBtn;
 	private JButton diagBtn;
 	private JButton wardBtn;
+	private JButton btnDates;
+	private JButton btnUpdate;
+	private JButton btnRemove;
 	private int id;
+	private int med_id;
 	private ResultSet res;
+	private String name;
+	private String pres;
+	private String med_time;
 
 
 	public static void main(String[] args) {
@@ -90,16 +99,16 @@ public class Doctor extends JFrame implements ActionListener, MouseListener{
 		scrollPane = new JScrollPane();
 		scrollPane_1.setViewportView(scrollPane);
 		
-		model = new DefaultTableModel();
-		table = new JTable();
-		table.addMouseListener(this);
-		scrollPane.setViewportView(table);
-		table.setModel(model);
-		scrollPane.setViewportView(table);
+		model_pat = new DefaultTableModel();
+		table_pat = new JTable();
+		table_pat.addMouseListener(this);
+		scrollPane.setViewportView(table_pat);
+		table_pat.setModel(model_pat);
+		scrollPane.setViewportView(table_pat);
 		Object[] column = {
 				"First Name", "Last Name", "DOB", "Admit Date", "Med_History",  "Description","Ward Status","Prescription","Diagnosis"};
 		Object[] row = new Object[0];
-		model.setColumnIdentifiers(column);
+		model_pat.setColumnIdentifiers(column);
 
 		diagArea = new JTextArea();
 		diagArea.setBounds(21, 414, 284, 95);
@@ -123,15 +132,24 @@ public class Doctor extends JFrame implements ActionListener, MouseListener{
 		lblPatient.setBounds(636, 208, 217, 27);
 		contentPane.add(lblPatient);
 		
-		presArea = new JTextArea();
-		presArea.setBounds(24, 211, 263, 112);
-		contentPane.add(presArea);
 		
-		presBtn = new JButton("Add Prescriptions");
+		presBtn = new JButton("Add");
 		presBtn.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		presBtn.setBounds(75, 333, 165, 34);
-		contentPane.add(presBtn);
+		presBtn.setBounds(21, 333, 78, 34);
+		contentPane.add(presBtn);;
 		presBtn.addActionListener(this);
+
+		btnUpdate = new JButton("Update");
+		btnUpdate.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		btnUpdate.setBounds(109, 333, 78, 34);
+		contentPane.add(btnUpdate);
+		btnUpdate.addActionListener(this);
+		
+		btnRemove = new JButton("Remove");
+		btnRemove.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		btnRemove.setBounds(197, 333, 78, 34);
+		contentPane.add(btnRemove);
+		btnRemove.addActionListener(this);
 		
 		JLabel lblPresc = new JLabel("Current Prescriptions");
 		lblPresc.setHorizontalAlignment(SwingConstants.CENTER);
@@ -143,14 +161,16 @@ public class Doctor extends JFrame implements ActionListener, MouseListener{
 		wardBtn.setBounds(380, 91, 198, 49);
 		contentPane.add(wardBtn);
 		wardBtn.addActionListener(this);
+		wardBtn.setEnabled(false);
 		
 		JButton labBtn = new JButton("Show Lab Report");
 		labBtn.setBounds(655, 91, 198, 49);
 		contentPane.add(labBtn);
 		
-		JButton btnLogout = new JButton("LogOut");
-		btnLogout.setBounds(957, 91, 198, 49);
-		contentPane.add(btnLogout);
+		btnDates = new JButton("Add Treatments");
+		btnDates.setBounds(957, 91, 198, 49);
+		contentPane.add(btnDates);
+		btnDates.addActionListener(this);
 		
 		JLabel lblNewLabel_1 = new JLabel("Chirag Simkhada");
 		lblNewLabel_1.setHorizontalAlignment(SwingConstants.CENTER);
@@ -158,8 +178,28 @@ public class Doctor extends JFrame implements ActionListener, MouseListener{
 		lblNewLabel_1.setBounds(21, 52, 232, 34);
 		contentPane.add(lblNewLabel_1);
 		populatePatientSection();
-		table.removeColumn(table.getColumnModel().getColumn(8));
-		table.removeColumn(table.getColumnModel().getColumn(7));
+		table_pat.removeColumn(table_pat.getColumnModel().getColumn(8));
+		table_pat.removeColumn(table_pat.getColumnModel().getColumn(7));
+		
+		JScrollPane med_scrollPane = new JScrollPane();
+		med_scrollPane.setBounds(21, 208, 284, 119);
+		contentPane.add(med_scrollPane);
+		
+		model_med = new DefaultTableModel();
+		med_table = new JTable();
+		med_table.addMouseListener(this);
+		med_scrollPane.setViewportView(med_table);
+		med_table.setModel(model_med);
+		med_scrollPane.setViewportView(med_table);
+		Object[] column_med = {
+				"Time", "Medicine", "id"};
+		Object[] row_med = new Object[0];
+		model_med.setColumnIdentifiers(column_med);
+		med_table.removeColumn(med_table.getColumnModel().getColumn(2));
+		med_table.addMouseListener(this);
+		
+		
+
 		
 
 
@@ -167,16 +207,14 @@ public class Doctor extends JFrame implements ActionListener, MouseListener{
 	
 	
 	private void populatePatientSection() {
-		PreparedStatement st;
 		int colCount;
-		DbConnection connection = new DbConnection();
 		try {
 			res = DoctorOperations.getPatients(docId);
 	        ResultSetMetaData  patientData= (ResultSetMetaData) res.getMetaData();
 	        
 	        colCount = patientData.getColumnCount();
 	        
-	        DefaultTableModel recordtable=(DefaultTableModel)table.getModel();
+	        DefaultTableModel recordtable=(DefaultTableModel)table_pat.getModel();
 	        recordtable.setRowCount(0);
 	                
 	        while (res.next()) {
@@ -215,49 +253,123 @@ public class Doctor extends JFrame implements ActionListener, MouseListener{
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		String query="a";
-		String data = "None";
-		if(e.getSource() == presBtn || e.getSource() == diagBtn) {
-			if(e.getSource() == presBtn) {
-				data = presArea.getText();
-				if(DoctorOperations.setPrescription(data, id)) { JOptionPane.showMessageDialog(null, "Prescriptions updated successsfully");}}
-				
+		if(e.getSource() == presBtn) {
+			new AddPrescription(id).setVisible(true);
+			refreshMed();
+		}
+		else if(e.getSource() == btnUpdate) {
+			new UpdatePrescription(med_id, pres, med_time).setVisible(true);
+			refreshMed();
+		}
+		
+		else if(e.getSource()==btnRemove) {
+			if(DoctorOperations.removePresctiption(med_id)) {
+				JOptionPane.showMessageDialog(null, "Prescription removed Successfully");
+			}
 			else {
-				data = diagArea.getText();
-				if(DoctorOperations.setDiagnosis(data, id)) { JOptionPane.showMessageDialog(null, "Diagnosis updated successsfully");}
-				}
-			refreshTable();
+				JOptionPane.showMessageDialog(null, "Failed to remove prescription");
+			}
+			refreshMed();
+		}
 			
+		else if(e.getSource() == diagBtn){
+			String data = diagArea.getText();
+			if(DoctorOperations.setDiagnosis(data, id)) { JOptionPane.showMessageDialog(null, "Diagnosis updated successsfully");
+			refreshTable();	}
+			else {
+				 JOptionPane.showMessageDialog(null, "Failed to update Diagnosis");
+			}
+		}
 
-
-
-		
-		
-        }
 		else if(e.getSource() == wardBtn) {
 			new RequestAdmit(id, docId).setVisible(true);;
 			
 		}
+		
+		else if(e.getSource() == btnDates) {
+			new KeyDateDoctor(id, name).setVisible(true);
+			
+		}
+	}
+	
+	public void populateMeds() {
+		int colCount;
+		try {
+			res = DoctorOperations.getMedicines(id);
+	        ResultSetMetaData  medData= (ResultSetMetaData) res.getMetaData();
+	        
+	        colCount = medData.getColumnCount();
+	        
+	        DefaultTableModel recordtable=(DefaultTableModel)med_table.getModel();
+	        recordtable.setRowCount(0);
+	                
+	        while (res.next()) {
+	                    
+                Vector<String> columnData= new Vector<String>();
+
+                for(int i=0;i<=colCount;i++) {
+                	columnData.add(res.getString("time"));
+                    columnData.add(res.getString("medicine"));
+                    columnData.add(res.getString("id"));
+            
+                }
+                recordtable.addRow(columnData);  
+            }
+	        
+	                
+		}
+	    catch (Exception ex) {
+	        JOptionPane.showMessageDialog(null, ex);
+
+	        
+	        
+	    }
+		
 	}
 		
 		
 
 	public void refreshTable() {
-		for(int i=model.getRowCount()-1;i>=0;i--){
-			model.removeRow(i);
+		for(int i=model_pat.getRowCount()-1;i>=0;i--){
+			model_pat.removeRow(i);
 		    }
 		populatePatientSection();
 		}
+	public void refreshMed() {
+		for(int i=model_med.getRowCount()-1;i>=0;i--){
+			model_med.removeRow(i);
+		}
+		populateMeds();
+	}
 	
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		id=  patientList.get(table.getSelectedRow());
-		int[] selRows = table.getSelectedRows();
-		TableModel recordtable= table.getModel();
-        SelectedRow=table.getSelectedRow();
-        presArea.setText(recordtable.getValueAt(selRows[0],8).toString());
-        diagArea.setText(recordtable.getValueAt(selRows[0],7).toString());
+		if (e.getSource() == table_pat) {
+			id=  patientList.get(table_pat.getSelectedRow());
+			int[] selRows = table_pat.getSelectedRows();
+			TableModel recordtable= table_pat.getModel();
+	        SelectedRow=table_pat.getSelectedRow();
+	        diagArea.setText(recordtable.getValueAt(selRows[0],7).toString());
+	        name = recordtable.getValueAt(selRows[0],0).toString() + " "+ recordtable.getValueAt(selRows[0],1).toString();
+	        refreshMed();
+	        populateMeds();
+	        if(recordtable.getValueAt(selRows[0],6).toString().equals("Admitted")) {
+	        	wardBtn.setEnabled(false);
+	        }
+	        else {
+	        	wardBtn.setEnabled(true);
+	        }
+		}
+		
+		else if(e.getSource()==med_table) {
+			int[] selRows = med_table.getSelectedRows();
+			TableModel recordtable= med_table.getModel();
+	        SelectedRow=med_table.getSelectedRow();
+	        med_id = Integer.parseInt(recordtable.getValueAt(selRows[0],2).toString());
+	        pres = recordtable.getValueAt(selRows[0],1).toString();
+	        med_time = recordtable.getValueAt(selRows[0],0).toString();
+		}
 		
 	}
 
