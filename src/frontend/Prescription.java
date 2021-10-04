@@ -51,6 +51,7 @@ public class Prescription extends JFrame implements ActionListener{
 	 * Create the frame.
 	 */
 	public Prescription(int id) {
+		setTitle("Prescription Page");
 		this.id=id;
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 450, 310);

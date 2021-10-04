@@ -37,6 +37,7 @@ import javax.swing.JRadioButton;
 import backend.AdminOperations;
 import backend.AdminOperations;
 import backend.DbConnection;
+import model.Registration;
 
 public class Register extends JFrame implements ActionListener {
 	private JPanel contentPane;
@@ -52,11 +53,15 @@ public class Register extends JFrame implements ActionListener {
 	private JButton btnRegister;
 	private JButton btnCancle;
 	private JPasswordField passwordField_2;
+	private Registration model;
 	JRadioButton doctor;
 	JRadioButton admin;
 	JRadioButton labAdmin;
 	JRadioButton nurse;
 	String post;
+	
+	
+	
 	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -73,6 +78,7 @@ public class Register extends JFrame implements ActionListener {
 
 
 	public Register() {
+		setTitle("Registration Page");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 650, 584);
 		contentPane = new JPanel();
@@ -197,12 +203,10 @@ public class Register extends JFrame implements ActionListener {
 		bg.add(labAdmin);
 		bg.add(doctor);
 		
-
+		emailField.setName("email");
+		passwordField.setName("password");
         
 	}
-	
-
-	
 	
 
  
@@ -223,16 +227,6 @@ public class Register extends JFrame implements ActionListener {
         return validation;
     }
     
-    public boolean linearSearch(String data, ArrayList<String> arr) {
-        boolean exists = false;
-        for(int i=0; i<arr.size(); i++) {
-            if(data.equals(arr.get(i))) {
-                exists = true;
-                break;
-            }
-        }
-        return exists;
-}
     
     
     public boolean valid(String fname, String lname, String uname, String password) {
@@ -247,10 +241,6 @@ public class Register extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == btnRegister) {
-			String fname = fnameField.getText();
-			String lname = lnameField.getText();
-			String uname = unameField.getText();
-			String password= String.valueOf(passwordField.getPassword());
 			if(admin.isSelected()) {
 				post = "admin";
 			}
@@ -266,6 +256,14 @@ public class Register extends JFrame implements ActionListener {
 			else {
 				JOptionPane.showMessageDialog(this, "Designation Field blank");
 			}
+			
+			model = new Registration(fnameField.getText(), lnameField.getText(), unameField.getText(), post, String.valueOf(passwordField.getPassword()));
+			String fname = model.getFname();
+			String lname = model.getLname();
+			String uname = model.getUname();
+			String password= model.getPassword();
+			
+			
 			if(valid(fname,lname,uname,password)) {
 				if(AdminOperations.register(fname, lname, uname, uname, password)) {
 					JOptionPane.showMessageDialog(null, "New Staff Added");
@@ -284,4 +282,20 @@ public class Register extends JFrame implements ActionListener {
         }
 		
 	}
+	
+	private void setEmail(String data) {
+		this.emailField.setText(data);
+	}
+	private String getEmail() {
+		return emailField.getText();
+	}
+	
+	private void setPassword(String data) {
+		this.passwordField.setText(data);
+	}
+	private String getPassword() {
+		return String.valueOf(passwordField.getPassword());
+	}
+	
+	
 }

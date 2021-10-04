@@ -53,6 +53,7 @@ public class UpdatePrescription extends JFrame implements ActionListener{
 	 * Create the frame.
 	 */
 	public UpdatePrescription(int id, String pres, String time) {
+		setTitle("Prescription Update Form");
 		this.id = id;
 		this.pres = pres;
 		this.time = time;

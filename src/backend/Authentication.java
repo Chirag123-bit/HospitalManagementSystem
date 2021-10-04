@@ -16,7 +16,7 @@ public class Authentication {
 	
 	  public static void login(String user, String psw) {
 	    	PreparedStatement st;
-			String query = "SELECT * FROM staff WHERE `uname` = ? AND `password` = ?"; 
+			String query = "SELECT * FROM staff WHERE `uname` = ? AND `password` = ?";
 			DbConnection connection = new DbConnection();
 			try {
 				st = DbConnection.conn.prepareStatement(query);

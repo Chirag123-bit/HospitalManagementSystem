@@ -56,6 +56,7 @@ public class RequestAdmit extends JFrame implements ActionListener {
 	 * Create the frame.
 	 */
 	public RequestAdmit(int user, int doctor) {
+		setTitle("Patient Admit Form");
 		this.user = user;
 		this.doctor = doctor;
 		setBounds(100, 100, 556, 335);

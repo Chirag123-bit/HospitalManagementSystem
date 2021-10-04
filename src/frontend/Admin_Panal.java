@@ -12,6 +12,8 @@ import javax.swing.JOptionPane;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.sql.PreparedStatement;
@@ -22,6 +24,7 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import javax.swing.SwingConstants;
+import javax.naming.directory.SearchControls;
 import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
@@ -30,29 +33,40 @@ import com.mysql.cj.jdbc.result.ResultSetMetaData;
 
 import backend.AdminOperations;
 import backend.DbConnection;
+import backend.SearchingSorting;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextArea;
 import javax.swing.JComboBox;
 
-public class Admin_Panal extends JFrame implements ActionListener, MouseListener{
+public class Admin_Panal extends JFrame implements ActionListener, MouseListener, ItemListener{
 
 	private JPanel contentPane;
 	private JTable table;
 	private JTextField fname;
 	private JTextField lname;
 	private JTextField dob;
+	private JTextField searchField;
 	private JTextField dateAdmitted;
 	private JTextField med_history;
 	private JComboBox<String> doctorCombo;
 	private JComboBox<String> nurseCombo;
+	private JComboBox<String> searchBox;
+	private JComboBox<String> sortCombo;
 	private JTextArea desc;
 	private JButton updateDetails;
 	private JButton btnAdd;
+	private JButton btnAddReport;
+	private JButton btnShowAdmitted;
+	private JButton btnRev;
+	private JButton btnBeds;
 	private JButton btnAdmit;
 	private JButton btnDate;
+	private JButton searchBtn;
+	private JButton btnReset;
 	private DefaultTableModel model;
+	private DefaultTableModel recordtable;
 	ArrayList<Object> doctorList = new ArrayList<>();
 	ArrayList <Object>nurseList = new ArrayList<>();
 	ArrayList <Integer>patientList = new ArrayList<>();
@@ -61,7 +75,8 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 	private static int adminId;
 	String name;
 	int patId;
-
+	private ArrayList<Vector<String> > patient_details = new ArrayList<Vector<String> >();
+	private SearchingSorting manage = new SearchingSorting();
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -78,6 +93,7 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 
 
 	public Admin_Panal(int adminId) {
+		setTitle("Admin Panel");
 		this.adminId = adminId;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1106, 703);
@@ -91,29 +107,42 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 		
 		btnAdd = new JButton("Add Patient");
 		btnAdd.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		btnAdd.setBounds(76, 98, 181, 54);
+		btnAdd.setBounds(11, 111, 146, 41);
 		getContentPane().add(btnAdd);
 		btnAdd.addActionListener(this);
 		
 		btnAdmit = new JButton("Show Admit Requests");
 		btnAdmit.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		btnAdmit.setBounds(324, 98, 181, 54);
+		btnAdmit.setBounds(167, 111, 181, 41);
 		getContentPane().add(btnAdmit);
 		btnAdmit.addActionListener(this);
 		
-		JButton btnNewButton_2 = new JButton("Add Lab Report");
-		btnNewButton_2.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		btnNewButton_2.setBounds(579, 98, 181, 54);
-		getContentPane().add(btnNewButton_2);
+		btnAddReport = new JButton("Add Lab Report");
+		btnAddReport.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		btnAddReport.setBounds(367, 111, 159, 41);
+		getContentPane().add(btnAddReport);
+		btnAddReport.addActionListener(this);
 		
 		btnDate = new JButton("Manage Dates");
 		btnDate.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		btnDate.setBounds(857, 98, 181, 54);
+		btnDate.setBounds(536, 111, 165, 41);
 		getContentPane().add(btnDate);
 		btnDate.addActionListener(this);
 		
+		btnShowAdmitted = new JButton("Allocated Beds");
+		btnShowAdmitted.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		btnShowAdmitted.setBounds(723, 111, 165, 41);
+		getContentPane().add(btnShowAdmitted);
+		btnShowAdmitted.addActionListener(this);
+		
+		btnBeds = new JButton("Add Beds");
+		btnBeds.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		btnBeds.setBounds(910, 111, 172, 41);
+		getContentPane().add(btnBeds);
+		btnBeds.addActionListener(this);
+		
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(367, 189, 715, 369);
+		scrollPane.setBounds(367, 239, 715, 319);
 		getContentPane().add(scrollPane);
 		
 		table = new JTable();
@@ -122,69 +151,68 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 		model = new DefaultTableModel();
 		Object[] column = {
 				"First Name", "Last Name", "DOB", "Admit Date", "Med_History", "Doctor", "Nurse", "Description", "id"};
-		Object[] row = new Object[0];
 		model.setColumnIdentifiers(column);
 		table.setModel(model);
 		
-		JLabel lblNewLabel = new JLabel("First Name");
-		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblNewLabel.setBounds(27, 192, 75, 25);
-		getContentPane().add(lblNewLabel);
+		JLabel lblFname = new JLabel("First Name");
+		lblFname.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		lblFname.setBounds(27, 192, 75, 25);
+		getContentPane().add(lblFname);
 		
 		fname = new JTextField();
 		fname.setBounds(112, 193, 198, 25);
 		getContentPane().add(fname);
 		fname.setColumns(10);
 		
-		JLabel lblNewLabel_1 = new JLabel("Last Name");
-		lblNewLabel_1.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblNewLabel_1.setBounds(27, 227, 75, 25);
-		getContentPane().add(lblNewLabel_1);
+		JLabel lblLname = new JLabel("Last Name");
+		lblLname.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		lblLname.setBounds(27, 227, 75, 25);
+		getContentPane().add(lblLname);
 		
 		lname = new JTextField();
 		lname.setColumns(10);
 		lname.setBounds(112, 228, 198, 25);
 		getContentPane().add(lname);
 		
-		JLabel lblNewLabel_2 = new JLabel(" DOB");
-		lblNewLabel_2.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblNewLabel_2.setBounds(27, 272, 75, 25);
-		getContentPane().add(lblNewLabel_2);
+		JLabel lblDob = new JLabel(" DOB");
+		lblDob.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		lblDob.setBounds(27, 272, 75, 25);
+		getContentPane().add(lblDob);
 		
 		dob = new JTextField();
 		dob.setColumns(10);
 		dob.setBounds(112, 273, 198, 25);
 		getContentPane().add(dob);
 		
-		JLabel lblNewLabel_2_1 = new JLabel("Date Admitted");
-		lblNewLabel_2_1.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblNewLabel_2_1.setBounds(11, 307, 91, 25);
-		getContentPane().add(lblNewLabel_2_1);
+		JLabel lblDate = new JLabel("Date Admitted");
+		lblDate.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		lblDate.setBounds(11, 307, 91, 25);
+		getContentPane().add(lblDate);
 		
 		dateAdmitted = new JTextField();
 		dateAdmitted.setColumns(10);
 		dateAdmitted.setBounds(112, 308, 198, 25);
 		getContentPane().add(dateAdmitted);
 		
-		JLabel lblNewLabel_2_1_1 = new JLabel("Medical History");
-		lblNewLabel_2_1_1.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblNewLabel_2_1_1.setBounds(11, 352, 91, 25);
-		getContentPane().add(lblNewLabel_2_1_1);
+		JLabel lblMed = new JLabel("Medical History");
+		lblMed.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		lblMed.setBounds(11, 352, 91, 25);
+		getContentPane().add(lblMed);
 		
 		med_history = new JTextField();
 		med_history.setColumns(10);
 		med_history.setBounds(112, 353, 198, 25);
 		getContentPane().add(med_history);
 		
-		JLabel lblNewLabel_2_1_2 = new JLabel("Doctor");
-		lblNewLabel_2_1_2.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblNewLabel_2_1_2.setBounds(27, 401, 75, 25);
-		getContentPane().add(lblNewLabel_2_1_2);
+		JLabel lblDoc = new JLabel("Doctor");
+		lblDoc.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		lblDoc.setBounds(27, 401, 75, 25);
+		getContentPane().add(lblDoc);
 		
-		JLabel lblNewLabel_2_1_3 = new JLabel("Description");
-		lblNewLabel_2_1_3.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblNewLabel_2_1_3.setBounds(11, 511, 75, 25);
-		getContentPane().add(lblNewLabel_2_1_3);
+		JLabel lblDesc = new JLabel("Description");
+		lblDesc.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		lblDesc.setBounds(11, 511, 75, 25);
+		getContentPane().add(lblDesc);
 		
 		desc = new JTextArea();
 		desc.setBounds(112, 489, 245, 69);
@@ -196,10 +224,10 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 		getContentPane().add(updateDetails);
 		updateDetails.addActionListener(this);
 		
-		JLabel lblNewLabel_2_1_2_1 = new JLabel("Nurse");
-		lblNewLabel_2_1_2_1.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblNewLabel_2_1_2_1.setBounds(27, 449, 75, 25);
-		getContentPane().add(lblNewLabel_2_1_2_1);
+		JLabel lblNurse = new JLabel("Nurse");
+		lblNurse.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		lblNurse.setBounds(27, 449, 75, 25);
+		getContentPane().add(lblNurse);
 		
 		doctorCombo = new JComboBox<String>();
 		doctorCombo.setBounds(112, 404, 198, 22);
@@ -213,11 +241,44 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 		contentPane.setLayout(new BorderLayout(0, 0));
 		contentPane.setLayout(null);
 		
+		searchField = new JTextField();
+		searchField.setColumns(10);
+		searchField.setBounds(680, 204, 126, 25);
+		getContentPane().add(searchField);
+		
+		searchBtn = new JButton("Search");
+		searchBtn.setBounds(816, 203, 126, 25);
+		getContentPane().add(searchBtn);
+		
+		String[] choices = {"First Name", "Last Name", "Doctor", "Nurse", "Ward"};
+		searchBox = new JComboBox<String>(choices);
+		searchBox.setBounds(531, 204, 126, 25);
+		getContentPane().add(searchBox);
+		searchBtn.addActionListener(this);
+		
+		String[] sortChoices = {"Id","First Name", "Last Name","Sort By"};
+		sortCombo = new JComboBox<String>(sortChoices);
+		sortCombo.setBounds(400, 204, 126, 25);
+		getContentPane().add(sortCombo);
+		
+		btnRev = new JButton("R");
+		btnRev.setBounds(351, 204, 50, 25);
+		getContentPane().add(btnRev);
+		
+		sortCombo.setSelectedIndex(-1);
+		sortCombo.setSelectedItem("Sort By");
+		sortCombo.addItemListener(this);
+		
+		btnReset = new JButton("Reset");
+		btnReset.setBounds(952, 204, 126, 25);
+		getContentPane().add(btnReset);
+		
 		populateComboBox();
 		populatePatientSection();
-		table.removeColumn(table.getColumnModel().getColumn(8));
+		btnReset.addActionListener(this);
+		btnRev.addActionListener(this);
+//		table.removeColumn(table.getColumnModel().getColumn(8));
 	}
-
 
 	
 	private void populatePatientSection() {
@@ -230,7 +291,7 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 	        
 	        colCount = patientData.getColumnCount();
 	        
-	        DefaultTableModel recordtable=(DefaultTableModel)table.getModel();
+	        recordtable=(DefaultTableModel)table.getModel();
 	        recordtable.setRowCount(0);
 	                
 	        while (res.next()) {
@@ -252,6 +313,7 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
                     
                     
                 }
+                patient_details.add(columnData);
                 recordtable.addRow(columnData);  
             }
 	        
@@ -295,17 +357,17 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		 DefaultTableModel recordtable= (DefaultTableModel)table.getModel();
-	        int SelectedRow=table.getSelectedRow();
-	        fname.setText(recordtable.getValueAt(SelectedRow,0).toString());
-	        lname.setText(recordtable.getValueAt(SelectedRow,1).toString());
-	        dob.setText(recordtable.getValueAt(SelectedRow,2).toString());
-	        dateAdmitted.setText(recordtable.getValueAt(SelectedRow,3).toString());
-	        med_history.setText(recordtable.getValueAt(SelectedRow,4).toString());
-	        desc.setText(recordtable.getValueAt(SelectedRow,7).toString());
-	        doctorCombo.setSelectedItem(recordtable.getValueAt(SelectedRow,5).toString());
-	        nurseCombo.setSelectedItem(recordtable.getValueAt(SelectedRow,6).toString());
-	        patId = Integer.parseInt(recordtable.getValueAt(SelectedRow,8).toString());
-	        name = recordtable.getValueAt(SelectedRow,0).toString() + " " + recordtable.getValueAt(SelectedRow,1).toString();
+	 	int SelectedRow=table.getSelectedRow();
+        fname.setText(recordtable.getValueAt(SelectedRow,0).toString());
+        lname.setText(recordtable.getValueAt(SelectedRow,1).toString());
+        dob.setText(recordtable.getValueAt(SelectedRow,2).toString());
+        dateAdmitted.setText(recordtable.getValueAt(SelectedRow,3).toString());
+        med_history.setText(recordtable.getValueAt(SelectedRow,4).toString());
+        desc.setText(recordtable.getValueAt(SelectedRow,7).toString());
+        doctorCombo.setSelectedItem(recordtable.getValueAt(SelectedRow,5).toString());
+        nurseCombo.setSelectedItem(recordtable.getValueAt(SelectedRow,6).toString());
+        patId = Integer.parseInt(recordtable.getValueAt(SelectedRow,8).toString());
+        name = recordtable.getValueAt(SelectedRow,0).toString() + " " + recordtable.getValueAt(SelectedRow,1).toString();
 
 		
 	}
@@ -371,17 +433,73 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 			
 		}
 		else if(e.getSource()==btnDate) {
-			new KeyDateAdmin(patId, name).setVisible(true);
+			if(!(patId==0)) {
+			new KeyDateAdmin(patId, name).setVisible(true);}
+			else {
+				JOptionPane.showMessageDialog(null, "Please select a patient!");
+			}
+		}
+		
+		else if(e.getSource()==btnAddReport) {
+			new ReportUploadFrame(patId, name).setVisible(true);
+		}
+		
+		else if(e.getSource()==searchBtn) {
+			String query = searchField.getText();
+			String choice = (String) searchBox.getSelectedItem();
+			patient_details = manage.search(patient_details, query,choice);
+			addSearchedData(patient_details);
+		}
+		else if(e.getSource()==btnReset) {
+			clearTable();
+			populatePatientSection();
+		}
+		
+		else if(e.getSource()==btnRev) {
+			clearTable();
+			manage.reverse(patient_details);
+			addSearchedData(patient_details);
+		}
+		else if(e.getSource()==btnShowAdmitted) {
+			new AllocatedBeds().setVisible(true);
+		}
+		
+		else if(e.getSource()==btnBeds) {
+			new AddBed().setVisible(true);
 		}
 			
 		}
 	
 	public void refreshTable() {
-		for(int i=model.getRowCount()-1;i>=0;i--){
-			model.removeRow(i);
-		    }
+		clearTable();
 		populatePatientSection();
 		}
+	
+	private void clearTable() {
+		for(int i=model.getRowCount()-1;i>=0;i--){
+			model.removeRow(i);
+		   }
+	}
+	
+	public void addSearchedData(ArrayList<Vector<String>> data) {
+		clearTable();
+		for(Vector<String> i: data) {
+			recordtable.addRow(i);
+		}
+	}
+
+
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		if(e.getSource()==sortCombo) {
+			String selected = (String) sortCombo.getSelectedItem();
+			if(!selected.equals("Sort By")) {
+				addSearchedData(manage.sort(patient_details, selected));
+				
+			}
+		}
+		
+	}
 	
 		
 	}

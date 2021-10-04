@@ -10,5 +10,14 @@
 	<classpathentry kind="lib" path="E:/Java Projects/SwingPractice/JCalendar.jar"/>
 	<classpathentry kind="lib" path="E:/Java Projects/Task 2/JPlanner.jar"/>
 	<classpathentry kind="lib" path="E:/Java Projects/Task 2/LGoodDatePicker-11.2.1.jar"/>
+	<classpathentry kind="lib" path="C:/junit/hamcrest-core-1.3.jar"/>
+	<classpathentry kind="lib" path="C:/junit/junit-4.13.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Admin/Downloads/sun-jai_codec.jar/sun-jai_codec.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Admin/Downloads/icepdf-viewer-6.2.1_P01.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Admin/Downloads/icepdf-core-6.2.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Admin/Downloads/icepdf-core-6.0.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Admin/Downloads/icepdf-core-6.1.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Admin/Downloads/icepdf-core-6.1.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Admin/Downloads/icepdf-core-6.2.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

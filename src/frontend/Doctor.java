@@ -14,6 +14,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.sql.Blob;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -55,6 +60,7 @@ public class Doctor extends JFrame implements ActionListener, MouseListener{
 	private JButton btnDates;
 	private JButton btnUpdate;
 	private JButton btnRemove;
+	private JButton labBtn;
 	private int id;
 	private int med_id;
 	private ResultSet res;
@@ -78,6 +84,7 @@ public class Doctor extends JFrame implements ActionListener, MouseListener{
 
 
 	public Doctor(int id) {
+		setTitle("DOctor's Pannel");
 		Doctor.docId = id;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1195, 623);
@@ -163,9 +170,10 @@ public class Doctor extends JFrame implements ActionListener, MouseListener{
 		wardBtn.addActionListener(this);
 		wardBtn.setEnabled(false);
 		
-		JButton labBtn = new JButton("Show Lab Report");
+		labBtn = new JButton("Show Lab Report");
 		labBtn.setBounds(655, 91, 198, 49);
 		contentPane.add(labBtn);
+		labBtn.addActionListener(this);
 		
 		btnDates = new JButton("Add Treatments");
 		btnDates.setBounds(957, 91, 198, 49);
@@ -289,6 +297,29 @@ public class Doctor extends JFrame implements ActionListener, MouseListener{
 		else if(e.getSource() == btnDates) {
 			new KeyDateDoctor(id, name).setVisible(true);
 			
+		}
+		
+		else if(e.getSource()==labBtn) {
+			Blob in = null;
+			res = DoctorOperations.getReport(id);
+			try {
+				while(res.next()) {
+					in = res.getBlob("report");
+				}
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+			try {
+				OutputStream out = new FileOutputStream("out.pdf");
+				out.write(in.getBytes(1l, (int) in.length()));
+				out.close();
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			new ReportViewingForm().setVisible(true);
 		}
 	}
 	

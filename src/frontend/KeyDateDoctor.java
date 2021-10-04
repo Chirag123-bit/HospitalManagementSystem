@@ -67,6 +67,7 @@ public class KeyDateDoctor extends JFrame implements ActionListener, MouseListen
 	 * Create the frame.
 	 */
 	public KeyDateDoctor(int patient, String patientName) {
+		setTitle("Key Date Management");
 		this.patient = patient;
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 802, 300);

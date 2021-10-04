@@ -22,6 +22,7 @@ import java.util.Vector;
 
 import javax.swing.JTextField;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JTable;
 import javax.swing.JScrollPane;
 import javax.swing.table.DefaultTableModel;
@@ -37,14 +38,16 @@ public class AdmitPatient extends JFrame implements ActionListener, MouseListene
 	private JPanel contentPane;
 	private JTextField patientName;
 	private JTextField wardName;
-	private JTextField bedName;
+	private JComboBox<ComboItems> bedBox;
 	private JTable table;
 	private int row;
-	private String user;
+	private int user;
+	private int admit_id;
 	private DefaultTableModel model;
 	private JButton btnAllocate;
 	private ArrayList<Integer> patientList = new ArrayList<>();
-
+	private int wardId;
+	private ResultSet res;
 	/**
 	 * Launch the application.
 	 */
@@ -65,6 +68,7 @@ public class AdmitPatient extends JFrame implements ActionListener, MouseListene
 	 * Create the frame.
 	 */
 	public AdmitPatient() {
+		setTitle("Admit Patient");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 1167, 380);
 		contentPane = new JPanel();
@@ -108,10 +112,9 @@ public class AdmitPatient extends JFrame implements ActionListener, MouseListene
 		bedLabel.setBounds(25, 235, 150, 30);
 		contentPane.add(bedLabel);
 		
-		bedName = new JTextField();
-		bedName.setColumns(10);
-		bedName.setBounds(178, 238, 223, 30);
-		contentPane.add(bedName);
+		bedBox = new JComboBox<ComboItems>();
+		bedBox.setBounds(178, 238, 223, 30);
+		contentPane.add(bedBox);
 		
 		btnAllocate = new JButton("Allocate Bed");
 		btnAllocate.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -129,12 +132,14 @@ public class AdmitPatient extends JFrame implements ActionListener, MouseListene
 		table = new JTable();
 		model = new DefaultTableModel();
 		table.setModel(model);
-		Object[] column ={ "Patient", "Ward",  "Requested By", "Bed", "Pid"};
+		Object[] column ={ "Patient", "Ward",  "Requested By", "Bed", "Pid","wid","aid"};
 		model.setColumnIdentifiers(column);
 		table.setModel(model);
 	
 		scrollPane.setViewportView(table);
 		populateRequests();
+		table.removeColumn(table.getColumnModel().getColumn(6));
+		table.removeColumn(table.getColumnModel().getColumn(5));
 		table.removeColumn(table.getColumnModel().getColumn(4));
 		table.addMouseListener(this);
 	}
@@ -164,6 +169,8 @@ public class AdmitPatient extends JFrame implements ActionListener, MouseListene
                     columnData.add(rs.getString("doc_name"));
                     columnData.add(rs.getString("bed"));
                     columnData.add(rs.getString("pid"));
+                    columnData.add(rs.getString("wid"));
+                    columnData.add(rs.getString("idadmit_request"));
                    
   
                 }
@@ -185,8 +192,26 @@ public class AdmitPatient extends JFrame implements ActionListener, MouseListene
         row=table.getSelectedRow();
         patientName.setText(recordtable.getValueAt(row,0).toString());
         wardName.setText(recordtable.getValueAt(row,1).toString());
-        bedName.setText(recordtable.getValueAt(row,3).toString());
-        user = recordtable.getValueAt(row,4).toString();
+        user = Integer.parseInt(recordtable.getValueAt(row,4).toString());
+        wardId = Integer.parseInt(recordtable.getValueAt(row, 5).toString());
+        admit_id = Integer.parseInt(recordtable.getValueAt(row, 6).toString());
+        
+        bedBox.removeAll();
+        populateBeds();
+		
+	}
+	
+	private void populateBeds() {
+		res = AdminOperations.getAvaliableBeds(wardId);
+		try {
+			while(res.next()) {
+				bedBox.addItem(new ComboItems(res.getString(3), res.getInt(1)));
+				
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 
@@ -217,39 +242,20 @@ public class AdmitPatient extends JFrame implements ActionListener, MouseListene
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == btnAllocate) {
+			
+			Object item = bedBox.getSelectedItem();
+			int id = ((ComboItems) item).getValue();
 
-			String bed = bedName.getText();
-	        
-	        int id = patientList.get(row);
-	        int userId = Integer.parseInt(user);
-	    
-	        String query = "UPDATE `admit_request` SET bed=? WHERE idadmit_request=?";
-	        String queryAdmit= "UPDATE `patient` SET status='Admitted' WHERE id=?";
-	        PreparedStatement st;
-	        try {
-	        	DbConnection connection = new DbConnection();
-	        	st = DbConnection.conn.prepareStatement(query);
-	        
-		        st.setString(1, bed);
-		        st.setInt(2, id);
+			if (AdminOperations.admitPatient(id, admit_id, user)) {
+				JOptionPane.showMessageDialog(null, "Patient Admitted Successfully! ");
+			}
+			else{
+				JOptionPane.showMessageDialog(null, "Failed to Add message!");
+			}
 
-	    
-	        
-	        if(st.executeUpdate()>0) {
-	        	st = DbConnection.conn.prepareStatement(queryAdmit);
-	        	st.setInt(1, userId);
-	        	st.executeUpdate();
-		        JOptionPane.showMessageDialog(null, "Bed Allocated for this patient!");
-		        refreshTable();
-		        
-	        	}
-	        } 
-	        catch (SQLException e1) {
-	        // TODO Auto-generated catch block
-	        e1.printStackTrace();
-	        }
-	        }
-		}
+
+	    }
+	}
 		
 	public void refreshTable() {
 		for(int i=table.getRowCount()-1;i>=0;i--){

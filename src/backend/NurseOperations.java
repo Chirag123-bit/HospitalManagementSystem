@@ -12,7 +12,7 @@ public class NurseOperations {
 	
 	public static ResultSet getPatients(int staff_id) {
 		query = "select * from patient where nurse=?" ;
-		
+	
 		try {
 			st = DbConnection.conn.prepareStatement(query);
 			st.setInt(1, staff_id);
@@ -25,7 +25,7 @@ public class NurseOperations {
 	}
 	
 	public static ResultSet getWardDetails(int pat_id) {
-		query = "select wd.name as ward_name, ad.bed as bed_name from admit_request ad, ward wd where patient=?" ;
+		query = "select distinct wd.name as ward_name, bd.bed as bed_name from admit_request ad, ward wd, bed as bd, patient as pt where bd.patient=? and wd.idward = ad.ward;" ;
 		
 		try {
 			st = DbConnection.conn.prepareStatement(query);

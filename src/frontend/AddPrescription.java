@@ -51,6 +51,7 @@ public class AddPrescription extends JFrame implements ActionListener{
 	 * Create the frame.
 	 */
 	public AddPrescription(int patient) {
+		setTitle("Prescriptions Page");
 		this.patient = patient;
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 450, 273);

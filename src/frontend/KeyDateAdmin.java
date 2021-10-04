@@ -73,6 +73,7 @@ public class KeyDateAdmin extends JFrame implements ActionListener, MouseListene
 	 * Create the frame.
 	 */
 	public KeyDateAdmin(int patient, String patientName) {
+		setTitle("Key Date Management");
 		this.patient = patient;
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 802, 360);
@@ -117,13 +118,10 @@ public class KeyDateAdmin extends JFrame implements ActionListener, MouseListene
 		
 		model = new DefaultTableModel();
 		table = new JTable();
-		table.addMouseListener(this);
 		scrollPane.setViewportView(table);
 		table.setModel(model);
-		scrollPane.setViewportView(table);
 		Object[] column = {
 				"Date", "Time", "Treatment", "Lab", "id"};
-		Object[] row = new Object[0];
 		model.setColumnIdentifiers(column);
 		
 		lblNewLabel = new JLabel("Current Treatments");
@@ -162,8 +160,8 @@ public class KeyDateAdmin extends JFrame implements ActionListener, MouseListene
 		comboBox.setBounds(138, 224, 180, 35);
 		contentPane.add(comboBox);
 		populateDates(patient);
-		table.removeColumn(table.getColumnModel().getColumn(4));
 		table.addMouseListener(this);
+		table.removeColumn(table.getColumnModel().getColumn(4));
 		
 	}
 	
@@ -185,7 +183,7 @@ public class KeyDateAdmin extends JFrame implements ActionListener, MouseListene
                 Vector<String> columnData= new Vector<String>();
                 
                 for(int i=0;i<=colCount;i++) {
-                	columnData.add(res.getString("Time"));
+                  columnData.add(res.getString("Time"));
                   columnData.add(res.getString("Date"));
                   columnData.add(res.getString("treatment"));
                   columnData.add(res.getString("lab"));
@@ -210,13 +208,12 @@ public class KeyDateAdmin extends JFrame implements ActionListener, MouseListene
 	}	
 		
 
-	
+
 	private void updateTreatment() {
 		String data = treatmentField.getText();
 		String time = timePicker.getText();
 		String date = datePicker.getText();
 		String lab = (String) comboBox.getSelectedItem();
-		//query= "UPDATE `key_treatment_date` SET Date=?, Treatment=?, lab=?, Time=? WHERE idkey_treatment_date=?";
 
 		if(DoctorOperations.updateTreatment(data, id, time, date, lab)) { JOptionPane.showMessageDialog(null, "Treatment Details Updated successsfully");refreshTable();}
 		else {
@@ -260,14 +257,16 @@ public class KeyDateAdmin extends JFrame implements ActionListener, MouseListene
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
+		if(e.getSource()==table) {
+			int[] selRows = table.getSelectedRows();
+			TableModel recordtable= table.getModel();
 
-		int[] selRows = table.getSelectedRows();
-		TableModel recordtable= table.getModel();
-		id = Integer.parseInt(recordtable.getValueAt(selRows[0],4).toString());
-		datePicker.setText(recordtable.getValueAt(selRows[0],0).toString());
-		timePicker.setText(recordtable.getValueAt(selRows[0],1).toString());
-		treatmentField.setText(recordtable.getValueAt(selRows[0],2).toString());
-		comboBox.setSelectedItem(recordtable.getValueAt(selRows[0],3).toString());
+			timePicker.setText(recordtable.getValueAt(selRows[0],0).toString());
+			datePicker.setText(recordtable.getValueAt(selRows[0],1).toString());
+			treatmentField.setText(recordtable.getValueAt(selRows[0],2).toString());
+			comboBox.setSelectedItem(recordtable.getValueAt(selRows[0],3).toString());
+			id = Integer.parseInt(recordtable.getValueAt(selRows[0],4).toString());
+		}
 	}
 
 	@Override

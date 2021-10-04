@@ -174,6 +174,19 @@ public class DoctorOperations {
 		
 	}
 	
+	public static ResultSet getReport(int id) {
+		query = "select report from lab where patient=?";
+		try {
+			st = DbConnection.conn.prepareStatement(query);
+			st.setInt(1, id);
+			res = st.executeQuery();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return res;
+		
+	}
+	}
+	
 
-
-}

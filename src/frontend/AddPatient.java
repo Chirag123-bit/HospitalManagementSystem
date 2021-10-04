@@ -68,6 +68,7 @@ public class AddPatient extends JFrame implements ActionListener {
 	 * Create the frame.
 	 */
 	public AddPatient() {
+		setTitle("Add Patient");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 697, 727);
 		contentPane = new JPanel();

@@ -86,6 +86,7 @@ public class Nurse extends JFrame implements ActionListener, MouseListener{
 	 * Create the frame.
 	 */
 	public Nurse(int nurseId, String fullName) {
+		setTitle("Nurse Pannel");
 		this.staff_id = nurseId;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1090, 489);
@@ -286,6 +287,8 @@ public class Nurse extends JFrame implements ActionListener, MouseListener{
         diagnosisArea.setText(recordtable.getValueAt(selRows[0],6).toString());
         name = recordtable.getValueAt(selRows[0],0).toString() + " "+recordtable.getValueAt(selRows[0],1).toString();
         try {
+        	wardField.setText("");
+			bedField.setText("");
         	while(res.next()) {
 			wardField.setText(res.getString("ward_name"));
 			bedField.setText(res.getString("bed_name"));}

@@ -38,7 +38,7 @@ public class Login extends JFrame implements ActionListener{
 
 
 	public static void main(String[] args) {
-
+		
 		Login frame = new Login();
 		frame.setVisible(true);
 
@@ -48,6 +48,7 @@ public class Login extends JFrame implements ActionListener{
 	 * Create the frame.
 	 */
 	public Login() {
+		setTitle("Login Page");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 933, 534);
 		contentPane = new JPanel();

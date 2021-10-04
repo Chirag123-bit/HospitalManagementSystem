@@ -120,7 +120,7 @@ public class AdminOperations {
 	}
 	
 	public static ResultSet getRequests() {
-		query = "select idadmit_request, p.fname as pname, wd.name as ward, s.fname as doc_name, ad.bed as bed, p.id as pid  from admit_request ad, patient p, ward wd, staff s WHERE p.status = 'Pending' AND ad.patient = p.id AND ad.requested_by = s.idstaff AND ad.ward = wd.idward" ;
+		query = "select idadmit_request, p.fname as pname, wd.name as ward,wd.idward as wid, s.fname as doc_name, ad.bed as bed, p.id as pid  from admit_request ad, patient p, ward wd, staff s WHERE p.status = 'Pending' AND ad.patient = p.id AND ad.requested_by = s.idstaff AND ad.ward = wd.idward" ;
 		try {
 			st = DbConnection.conn.prepareStatement(query);
 			res = st.executeQuery();
@@ -129,6 +129,117 @@ public class AdminOperations {
 			e.printStackTrace();
 		}
 		return res;
+	}
+	
+	public static boolean uploadReport(int id, byte[] data) {
+		query = "INSERT INTO `lab`(`patient`,`report`) VALUES(?, ?);";
+		try {
+			DbConnection connection = new DbConnection();
+			st = DbConnection.conn.prepareStatement(query);
+			st.setInt(1, id);
+			st.setBytes(2, data);
+			if(st.executeUpdate()>0) {
+				return true;
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public static ResultSet getWards() {
+		query = "SELECT * FROM ward";
+		try {
+			DbConnection connection = new DbConnection();
+			st = DbConnection.conn.prepareStatement(query);
+			res = st.executeQuery();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return res;
+		
+	}
+	
+	public static boolean addBed(int ward, String name) {
+		query = "INSERT INTO `bed`(`ward`,`bed`) VALUES(?, ?)"; 
+		
+		try {
+			DbConnection connection = new DbConnection();
+			st = DbConnection.conn.prepareStatement(query);
+			st.setInt(1, ward);
+			st.setString(2, name);
+			if(st.executeUpdate()>0) {
+				return true;
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+		
+		
+	}
+	
+	public static ResultSet getAvaliableBeds(int id) {
+		query = "SELECT * FROM bed where ward=? and status=?";
+		try {
+			DbConnection connection = new DbConnection();
+			st = DbConnection.conn.prepareStatement(query);
+			st.setInt(1, id);
+			st.setString(2, "Avaliable");
+			res = st.executeQuery();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return res;
+		
+	}
+	public static ResultSet getAllocatedBeds() {
+		query = "select pt.fname, pt.lname, wd.name, bd.bed from ward as wd, patient as pt, bed as bd where bd.patient is not null and pt.id = bd.patient and bd.ward = wd.idward;";
+		try {
+			DbConnection connection = new DbConnection();
+			st = DbConnection.conn.prepareStatement(query);
+			res = st.executeQuery();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return res;
+		
+	}
+	
+	public static boolean admitPatient(int bed, int admit_id, int userID) {
+		 String query = "UPDATE `admit_request` SET bed=? WHERE idadmit_request=?";
+         String queryAdmit= "UPDATE `patient` SET status='Admitted' WHERE id=?";
+         String queryDone= "UPDATE `bed` SET status='Allocated', patient=? WHERE idbed=?";
+         
+         try {
+ 			DbConnection connection = new DbConnection();
+ 			st = DbConnection.conn.prepareStatement(query);
+ 			st.setInt(1, bed);
+	        st.setInt(2, admit_id);
+	        st.executeUpdate();
+	        
+	        st = DbConnection.conn.prepareStatement(queryAdmit);
+ 			st.setInt(1, userID);
+	        st.executeUpdate();
+	        
+	        st = DbConnection.conn.prepareStatement(queryDone);
+	        st.setInt(1, userID);
+ 			st.setInt(2, bed);
+ 			if(st.executeUpdate()>0) {
+ 				return true;
+ 			}
+ 		} catch (SQLException e) {
+ 			// TODO Auto-generated catch block
+ 			e.printStackTrace();
+ 		}
+        
+        return false;
+
 	}
 
 
