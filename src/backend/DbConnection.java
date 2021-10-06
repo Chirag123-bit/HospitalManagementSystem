@@ -5,6 +5,9 @@ import java.sql.SQLException;
 
 
 public class DbConnection {
+	/*
+	 * This function is used to establish connection with database
+	 */
 	public static Connection conn;
 	public DbConnection() {
 		

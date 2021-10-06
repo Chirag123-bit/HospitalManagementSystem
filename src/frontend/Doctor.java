@@ -317,7 +317,7 @@ public class Doctor extends JFrame implements ActionListener, MouseListener{
 				out.close();
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				e1.printStackTrace(); 
 			}
 			new ReportViewingForm().setVisible(true);
 		}

@@ -459,7 +459,7 @@ public class Admin_Panal extends JFrame implements ActionListener, MouseListener
 			clearTable();
 			manage.reverse(patient_details);
 			addSearchedData(patient_details);
-		}
+		} 
 		else if(e.getSource()==btnShowAdmitted) {
 			new AllocatedBeds().setVisible(true);
 		}

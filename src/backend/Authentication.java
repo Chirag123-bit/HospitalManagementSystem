@@ -15,6 +15,10 @@ public class Authentication {
 	
 	
 	  public static void login(String user, String psw) {
+		  /*
+		   * This function is used to allow users to login based on their user role
+		   * Their role is automatially determined if their credintials matches the system
+		   */
 	    	PreparedStatement st;
 			String query = "SELECT * FROM staff WHERE `uname` = ? AND `password` = ?";
 			DbConnection connection = new DbConnection();

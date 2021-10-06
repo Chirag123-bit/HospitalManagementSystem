@@ -4,10 +4,19 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 public class SearchingSorting {
+	/*
+	 * This class is responsible for performing searching and sorting operations in this system
+	 */
 	static ArrayList<Vector<String>> res;
 	static int pos = 0;
 	
 	public ArrayList<Vector<String>> search(ArrayList<Vector<String>> data, String query, String field) {
+		/*
+		 * params:
+		 * data -> arraylist of string array containing all patients details
+		 * query - > String to search for
+		 * field - > Field to search on (fname, lname....)
+		 */
 		res = new ArrayList<Vector<String>>();
 		query = query.toLowerCase();
 		if(field.equals("First Name")){
@@ -27,7 +36,7 @@ public class SearchingSorting {
 		}
 	
 		
-		for(Vector<String> i:data) {
+		for(Vector<String> i:data) { //Linear search on the required array
 			if(i.get(pos).toLowerCase().equals(query)) {
 				res.add(i);
 			}
@@ -36,6 +45,14 @@ public class SearchingSorting {
 		
 	}
 	public ArrayList<Vector<String>> sort(ArrayList<Vector<String>> data, String field){
+		/*
+		 * params:
+		 * data -> arraylist of string array containing all patients details
+		 * field - > Field to search on (fname, lname....)
+		 * 
+		 * This function sorts all data based on a particular field
+		 * Quick sort is used here to perform sorting
+		 */
 		res = new ArrayList<Vector<String>>();
 		if(field.equals("Id")){
 			pos=8;
@@ -52,8 +69,10 @@ public class SearchingSorting {
 		
 	}
 	
-	static void swap(ArrayList<Vector<String>> arr, int i, int j, int pos)
-	{
+	static void swap(ArrayList<Vector<String>> arr, int i, int j, int pos){
+		/*
+		 * Swaps vector string inside the arraylist
+		 */
 		Vector<String> temp = arr.get(i);
 	    arr.set(i, arr.get(j));
 	    arr.set(j, temp);
@@ -109,14 +128,19 @@ public class SearchingSorting {
 	    }
 	}
 	
-	public void reverseSwap(ArrayList<Vector<String>> arr, int i, int j)
-	{
+	public void reverseSwap(ArrayList<Vector<String>> arr, int i, int j){
+		/*
+		 * Used to perform reverse swap on the arraylist of vector string
+		 */
 		Vector<String> temp = arr.get(i);
 	    arr.set(i, arr.get(j));
 	    arr.set(j, temp);
 	}
 	
 	public ArrayList<Vector<String>> reverse(ArrayList<Vector<String>> arr){
+		/*
+		 * Used to reverse an arraylist by swapping high and low elements
+		 */
 		int low = 0;
 		int high = arr.size()-1;
 		while(low<high) {
